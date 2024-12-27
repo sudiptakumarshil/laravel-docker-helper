@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel_db # Set your database name
+      MYSQL_ROOT_PASSWORD: root_password # Set your MySQL root password
+      MYSQL_USER: user # Set your MySQL user
+      MYSQL_PASSWORD: user_password # Set your MySQL user password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80" # Access phpMyAdmin at http://localhost:8080
+    environment:
+      PMA_HOST: db # Set the MySQL host to connect to
+      PMA_USER: user # Set the MySQL user for phpMyAdmin
+      PMA_PASSWORD: user_password # Set the MySQL user password for phpMyAdmin
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
